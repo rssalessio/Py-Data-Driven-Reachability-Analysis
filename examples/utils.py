@@ -22,3 +22,4 @@ W = Zonotope(np.array(np.zeros((2, 1))), 0.003 * np.ones((2, 1)))
 
 total_samples = 100
 M = concatenate_zonotope(W, total_samples)
+print(M.generators.shape)

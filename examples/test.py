@@ -9,7 +9,7 @@ U = Zonotope(np.array(np.ones((dim_x, 1))),0.25 * np.diag(np.ones((dim_x, 1)).T[
 W = Zonotope(np.array(np.zeros((dim_x, 1))), 0.003 * np.ones((dim_x, 1)))
 
 
-total_samples = 10
+total_samples = 100
 """index=1;
 for i=1:size(W.generators,2)
     vec=W.Z(:,i+1);
