@@ -4,22 +4,22 @@ from matrix_zonotope import MatrixZonotope
 
 
 def concatenate_zonotope(zonotope: Zonotope, N: int) -> MatrixZonotope:
-    assert N > 0 and isinstance(N, int), 'N must be a positiveinteger'
-    dim_x = zonotope.dim
-    C = np.tile(zonotope.center, (dim_x, N))
-    G = np.zeros((dim_x, N * N * zonotope.num_generators))
+    """
+    Concatenates a zonotope N times (creating a matrix zonotope)
+    of dimension (N*g, n, N), where the first dimension is the number of generators,
+    and g is the number of generators in the zonotope
+
+    :param zonotope: Zonotope
+    :param N: number of concatenations
+    :return: Matrix Zonotope
+    """
+    assert N > 0 and isinstance(N, int), 'N must be a positive integer'
+    dim_x = zonotope.dimension
+    C = np.tile(zonotope.center, (N, 1)).T
+    G = np.zeros((N * zonotope.num_generators, dim_x, N))
 
     for i in range(zonotope.num_generators):
         for j in range(N):
-            G[:, i*N*N + j*N + j] = zonotope.generators[:, i]
-    
+            G[j + i*N, :, j] = zonotope.generators[:, i]
 
     return MatrixZonotope(C, G)
-
-
-W = Zonotope(np.array(np.zeros((2, 1))), 0.003 * np.ones((2, 1)))
-
-
-total_samples = 100
-M = concatenate_zonotope(W, total_samples)
-print(M.generators.shape)

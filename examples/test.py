@@ -1,38 +1,43 @@
+import numpy as np
 from zonotope import Zonotope
 from matrix_zonotope import MatrixZonotope
-import numpy as np
+from utils import concatenate_zonotope
+import scipy.signal as scipysig
 
-dim_x = 2
+A = np.array(
+    [[-1, -4, 0, 0, 0],
+     [4, -1, 0, 0, 0],
+     [0, 0, -3, 1, 0],
+     [0, 0, -1, -3, 0],
+     [0, 0, 0, 0, -2]])
+B = np.zeros((5, 1))
+C = np.array([1, 0, 0, 0, 0])
+D = np.array([0])
 
-X0 = Zonotope(np.array(np.ones((dim_x, 1))), 0.1 * np.diag(np.ones((dim_x, 1)).T[0]))
-U = Zonotope(np.array(np.ones((dim_x, 1))),0.25 * np.diag(np.ones((dim_x, 1)).T[0]))
-W = Zonotope(np.array(np.zeros((dim_x, 1))), 0.003 * np.ones((dim_x, 1)))
+dim_x = A.shape[0]
+dt = 0.05
+A,B,C,D,_ = scipysig.cont2discrete(system=(A,B,C,D), dt = dt)
 
 
-total_samples = 100
-"""index=1;
-for i=1:size(W.generators,2)
-    vec=W.Z(:,i+1);
-    GW{index}= [ vec,zeros(dim_x,totalsamples-1)];
-    for j=1:totalsamples-1
-        GW{j+index}= [GW{index+j-1}(:,2:end) GW{index+j-1}(:,1)];
-    end
-    index = j+index+1;
-end
-"""
+# parameters
+initpoints = 1
+steps = 120
+total_samples = steps * initpoints
 
-GW = []
-for i in range(W.generators.shape[1]):
-    vec = np.reshape(W.Z[:, i + 1], (dim_x, 1))
-    dummy = []
-    dummy.append(np.hstack((vec, np.zeros((dim_x, total_samples - 1)))))
-    #print(vec.shape, W.Z.shape, dummy[i][:, 2:].shape, dummy[0][:, 0].shape)
-    for j in range(1, total_samples, 1):
-        right = np.reshape(dummy[i][:, 0:j], (dim_x, -1))
-        left = dummy[i][:, j:]
-        dummy.append(np.hstack((left, right)))
-    GW.append(np.array(dummy))
+# Initial set and input
+X0 = Zonotope(np.ones((dim_x, 1)), 0.1 * np.diag([1] * dim_x))
+U = Zonotope(np.ones((1, 1)),  0.25 * np.ones((1,1)))
+W = Zonotope(np.zeros((dim_x, 1)), 0.003 * np.ones((dim_x, 1)))
 
-GW = np.array(GW)
-print(np.array(GW).shape)
-print(W.generators.shape)
+Mw = concatenate_zonotope(W, total_samples)
+u = U.sample(total_samples)
+
+# Simulate system
+X = np.zeros((total_samples, dim_x))
+for j in range(initpoints):
+    X[j * steps, :] = X0.sample()
+    for i in range(1, steps):
+        print(f'{j}-{i}')
+        X[j * steps + i, :] = A @ X[j * steps + i -1, :] +  B @ u[j * steps + i - 1] + W.sample()
+
+print(X)
