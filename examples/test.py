@@ -50,4 +50,7 @@ Um = np.reshape(u[:, :-1,:], ((steps - 1) * trajectories, dim_u))
 
 Msigma = compute_linear_system_matrix_zonotope(Xm, Xp, Um, Mw)
 
-print(f'Msigma contains [A,B]: {Msigma.interval_matrix.interval.contains(np.hstack((A,B)))}')
+print(f'Msigma contains [A,B]: {Msigma.contains(np.hstack((A,B)))}')
+
+test = Zonotope(np.zeros((2, 1)), np.diag([1] * 2))
+print(test.contains(np.array([1,1])))

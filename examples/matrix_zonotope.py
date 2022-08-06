@@ -106,7 +106,6 @@ class MatrixZonotope(object):
         beta = np.random.uniform(low=-1, high=1, size=(batch_size, self.num_generators))
         return (self.center[None, :] + np.tensordot(beta, self.generators, axes=1))
 
-
     @property
     def interval_matrix(self) -> IntervalMatrix:
         Z = self.copy()
@@ -116,4 +115,10 @@ class MatrixZonotope(object):
             delta += np.abs(Z.generators[i])
 
         return IntervalMatrix(Z.center, delta)
+
+    def contains(self, X: np.ndarray) -> bool:
+        """
+        Returns true if the matrix zonotope contains X
+        """
+        return self.interval_matrix.contains(X)
 

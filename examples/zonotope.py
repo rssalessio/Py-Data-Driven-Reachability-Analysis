@@ -3,6 +3,8 @@ from ctypes import Union
 import numpy as np
 from copy import deepcopy
 
+from interval import Interval
+
 class Zonotope(object):
     """
     zonotope - object constructor for zonotope objects
@@ -17,6 +19,8 @@ class Zonotope(object):
     half_space: np.ndarray
 
     def __init__(self, center: np.ndarray, generator: np.ndarray):
+        center = np.array(center)
+        generator = np.array(generator)
         assert center.shape[0] == generator.shape[0], 'Center and generator do not have the same number of rows'
         self.Z = np.hstack([center, generator])
         self.half_space = np.array([])
@@ -89,6 +93,19 @@ class Zonotope(object):
             
         beta = np.random.uniform(low=-1, high=1, size=(self.num_generators, batch_size))
         return (self.center[:, None] + np.dot(self.generators, beta)).T
+
+    @property
+    def interval(self) -> Interval:
+        res = self.copy()
+        center = res.center
+        delta = np.abs(res.generators).sum(axis=1)
+        return Interval(center - delta, center + delta)
+
+    def contains(self, X: np.ndarray) -> bool:
+        """
+        Returns true if the zonotope contains X
+        """
+        return self.interval.contains(X)
             
 
 c = np.ones((10, 1))

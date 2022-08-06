@@ -26,6 +26,6 @@ class Interval(object):
         """
         assert isinstance(X, np.ndarray), "X is not a numpy array"
         assert X.shape == self.left_limit.shape, "X has not the correct shape"
-        return np.all(X >= self.left_limit) and np.all(X < self.right_limit)
+        return np.all(X >= self.left_limit) and np.all(X <= self.right_limit)
 
 
