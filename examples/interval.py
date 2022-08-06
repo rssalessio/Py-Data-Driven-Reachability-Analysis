@@ -17,5 +17,15 @@ class Interval(object):
             raise ValueError('Left limit needs cannot be greater than right limit')
 
     def __str__(self):
-        return f'Interval: {self.left_limit} - {self.right_limit}'
+        return f'Interval: {self.left_limit}\n{self.right_limit}'
+
+
+    def contains(self, X: np.ndarray) -> bool:
+        """
+        Returns true if interval contains X
+        """
+        assert isinstance(X, np.ndarray), "X is not a numpy array"
+        assert X.shape == self.left_limit.shape, "X has not the correct shape"
+        return np.all(X >= self.left_limit) and np.all(X < self.right_limit)
+
 

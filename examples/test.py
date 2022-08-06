@@ -1,4 +1,5 @@
 import numpy as np
+from rechability_analysis import compute_linear_system_matrix_zonotope
 from zonotope import Zonotope
 from matrix_zonotope import MatrixZonotope
 from utils import concatenate_zonotope
@@ -15,29 +16,38 @@ C = np.array([1, 0, 0, 0, 0])
 D = np.array([0])
 
 dim_x = A.shape[0]
+dim_u = 1
 dt = 0.05
 A,B,C,D,_ = scipysig.cont2discrete(system=(A,B,C,D), dt = dt)
 
 
 # parameters
-initpoints = 1
+trajectories = 1
 steps = 120
-total_samples = steps * initpoints
+total_samples = steps * trajectories
 
 # Initial set and input
 X0 = Zonotope(np.ones((dim_x, 1)), 0.1 * np.diag([1] * dim_x))
-U = Zonotope(np.ones((1, 1)),  0.25 * np.ones((1,1)))
+U = Zonotope(np.ones((dim_u, 1)),  0.25 * np.diag([1] * dim_u))
 W = Zonotope(np.zeros((dim_x, 1)), 0.003 * np.ones((dim_x, 1)))
 
-Mw = concatenate_zonotope(W, total_samples)
-u = U.sample(total_samples)
+Mw = concatenate_zonotope(W, total_samples - 1)
+u = U.sample(total_samples).reshape((trajectories, steps, dim_u))
 
 # Simulate system
-X = np.zeros((total_samples, dim_x))
-for j in range(initpoints):
-    X[j * steps, :] = X0.sample()
+X = np.zeros((trajectories, steps, dim_x))
+Xm = np.zeros((trajectories, steps - 1, dim_x))
+Xp = np.zeros_like(Xm)
+for j in range(trajectories):
+    X[j, 0, :] = X0.sample()
     for i in range(1, steps):
-        print(f'{j}-{i}')
-        X[j * steps + i, :] = A @ X[j * steps + i -1, :] +  B @ u[j * steps + i - 1] + W.sample()
+        X[j, i, :] = A @ X[j, i - 1, :] +  np.squeeze(B * u[j, i - 1]) + W.sample()
 
-print(X)
+
+Xm = np.reshape(X[:,:-1,:], ((steps - 1) * trajectories, dim_x))
+Xp = np.reshape(X[:, 1:,:], ((steps - 1) * trajectories, dim_x))
+Um = np.reshape(u[:, :-1,:], ((steps - 1) * trajectories, dim_u))
+
+Msigma = compute_linear_system_matrix_zonotope(Xm, Xp, Um, Mw)
+
+print(f'Msigma contains [A,B]: {Msigma.interval_matrix.interval.contains(np.hstack((A,B)))}')

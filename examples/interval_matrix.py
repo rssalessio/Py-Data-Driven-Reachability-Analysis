@@ -1,11 +1,11 @@
 import numpy as np
 from interval import Interval
 
-class InteralMatrix(object):
+class IntervalMatrix(object):
     dim: int
     inf: np.ndarray
     sup: np.ndarray
-    interval: np.ndarray
+    _interval: np.ndarray
     setting: str = 'sharpivmult'
 
     def __init__(self, matrix_center: np.ndarray, matrix_delta: np.ndarray, setting: str = None):
@@ -15,11 +15,15 @@ class InteralMatrix(object):
         self.inf = matrix_center - _matrix_delta
         self.sup = matrix_center + _matrix_delta
 
-        self.interval = Interval(self.inf, self.sup)
+        self._interval = Interval(self.inf, self.sup)
         
         if isinstance(setting, str):
             self.setting = setting
 
     def __str__(self):
-        return f'Interval matrix'
+        return f'Interval matrix: sup {self.sup}\ninf {self.inf}'
 
+    @property
+    def interval(self) -> Interval:
+        """ Returns the interval representation """
+        return self._interval
