@@ -1,6 +1,8 @@
 import numpy as np
+import cvxpy as cp
 from pydatadrivenreachability.zonotope import Zonotope
 from pydatadrivenreachability.matrix_zonotope import MatrixZonotope
+from typing import Union
 
 
 def concatenate_zonotope(zonotope: Zonotope, N: int) -> MatrixZonotope:
@@ -23,3 +25,4 @@ def concatenate_zonotope(zonotope: Zonotope, N: int) -> MatrixZonotope:
             G[j + i*N, :, j] = zonotope.generators[:, i]
 
     return MatrixZonotope(C, G)
+

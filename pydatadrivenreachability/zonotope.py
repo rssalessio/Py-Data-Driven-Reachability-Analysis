@@ -130,6 +130,7 @@ class Zonotope(object):
         """
         Return true if the zonotope contains X
         """
+        assert isinstance(X, np.ndarray), 'Operand is not an array'
         return self.interval.contains(X)
 
     def cartesian_product(self, W: Zonotope) -> Zonotope:
@@ -139,6 +140,7 @@ class Zonotope(object):
         :param W: Zonotope object
         :return: Zonotope object
         """
+        assert isinstance(W, Zonotope), 'Operand is not a Zonotope'
         new_center = np.hstack((self.center, W.center))
         new_generators = block_diag(self.generators, W.generators)
         return Zonotope(new_center, new_generators)

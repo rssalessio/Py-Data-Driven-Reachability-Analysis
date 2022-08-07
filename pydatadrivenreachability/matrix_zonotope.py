@@ -4,6 +4,8 @@ import numpy as np
 from pydatadrivenreachability.zonotope import Zonotope
 from copy import deepcopy
 from pydatadrivenreachability.interval_matrix import IntervalMatrix
+from pydatadrivenreachability.cvx_zonotope import CVXZonotope
+import cvxpy as cp
 
 class MatrixZonotope(object):
     """
@@ -66,7 +68,7 @@ class MatrixZonotope(object):
 
     __radd__ = __add__
 
-    def __mul__(self, operand: Union[int, float, np.ndarray, Zonotope]) -> Union[MatrixZonotope, Zonotope]:
+    def __mul__(self, operand: Union[int, float, np.ndarray, Zonotope, CVXZonotope]) -> Union[MatrixZonotope, CVXZonotope, Zonotope]:
         if isinstance(operand, float) or isinstance(operand, int):
             return MatrixZonotope(self.center * operand, self.generators * operand)
         
@@ -78,6 +80,15 @@ class MatrixZonotope(object):
                 Zadd = self.generators[i] @ operand.Z
                 Znew = np.hstack((Znew, Zadd))
             return Zonotope(Znew[:,:1], Znew[:, 1:])
+
+        elif isinstance(operand, CVXZonotope):
+            assert self.center.shape[1] == operand.Z.shape[0]
+            Znew: cp.Expression = self.center @ operand.Z
+
+            for i in range(self.num_generators):
+                Zadd: cp.Expression = self.generators[i] @ operand.Z
+                Znew = cp.hstack((Znew, Zadd))
+            return CVXZonotope(Znew[:,:1], Znew[:, 1:])
 
         elif isinstance(operand, np.ndarray):
             # Left multiplication, operand * self
