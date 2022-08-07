@@ -35,7 +35,7 @@ AV = V * A
 
 Mw = concatenate_zonotope(W, total_samples - 1)
 Mv = concatenate_zonotope(V, total_samples - 1)
-Mav = Mv * A
+Mav = Mv * A # or Mav = concatenate_zonotope(AV, total_samples - 1)
 
 
 u = U.sample(total_samples).reshape((trajectories, steps, dim_u))
