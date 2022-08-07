@@ -4,7 +4,7 @@ import numpy as np
 from copy import deepcopy
 from scipy.linalg import block_diag
 
-from interval import Interval
+from pydatadrivenreachability.interval import Interval
 
 class Zonotope(object):
     """
@@ -67,7 +67,9 @@ class Zonotope(object):
         """ Returns a copy of the zonotope """
         return Zonotope(deepcopy(self.center)[:, np.newaxis], deepcopy(self.generators))
 
-    def __add__(self, operand: Zonotope) -> Zonotope:
+    def __add__(self, operand: Union[float, int, np.ndarray, Zonotope]) -> Zonotope:
+        if isinstance(operand, float) or isinstance(operand, int) or isinstance(operand, np.ndarray):
+            return Zonotope(self.Z[:, 0] + operand, self.Z[:, 1:])
         if isinstance(operand, Zonotope):
             assert np.all(operand.dimension == self.dimension), \
                 f"Operand has not the same dimension, {self.dimension} != {operand.dimension}"

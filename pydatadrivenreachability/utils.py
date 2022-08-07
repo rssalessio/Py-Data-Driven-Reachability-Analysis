@@ -1,6 +1,6 @@
 import numpy as np
-from zonotope import Zonotope
-from matrix_zonotope import MatrixZonotope
+from pydatadrivenreachability.zonotope import Zonotope
+from pydatadrivenreachability.matrix_zonotope import MatrixZonotope
 
 
 def concatenate_zonotope(zonotope: Zonotope, N: int) -> MatrixZonotope:

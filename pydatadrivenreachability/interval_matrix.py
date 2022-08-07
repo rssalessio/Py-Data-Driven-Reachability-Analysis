@@ -1,7 +1,10 @@
 import numpy as np
-from interval import Interval
+from pydatadrivenreachability.interval import Interval
 
 class IntervalMatrix(object):
+    """
+    Represents a matrix interval
+    """
     dim: int
     inf: np.ndarray
     sup: np.ndarray

@@ -3,6 +3,9 @@ import numpy as np
 from typing import Union
 
 class Interval(object):
+    """
+    Interval with left and right limits
+    """
     left_limit: np.ndarray
     right_limit: np.ndarray
 

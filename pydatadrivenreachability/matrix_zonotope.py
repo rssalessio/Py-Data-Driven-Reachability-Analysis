@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import Union, Tuple
 import numpy as np
-from zonotope import Zonotope
+from pydatadrivenreachability.zonotope import Zonotope
 from copy import deepcopy
-from interval_matrix import IntervalMatrix
+from pydatadrivenreachability.interval_matrix import IntervalMatrix
 
 class MatrixZonotope(object):
     """
@@ -53,11 +53,16 @@ class MatrixZonotope(object):
     def copy(self) -> MatrixZonotope:
         return MatrixZonotope(deepcopy(self.center), deepcopy(self.generators))
 
-    def __add__(self, operand: np.ndarray) -> MatrixZonotope:
-        if(isinstance(operand, np.ndarray)):
+    def __add__(self, operand: Union[float, int, np.ndarray, MatrixZonotope]) -> MatrixZonotope:
+        if(isinstance(operand, np.ndarray)) or isinstance(operand, int) or isinstance(operand, float):
+            if isinstance(operand, np.ndarray):
+                assert operand.shape == self.center.shape, 'Incorrect shape for operand'
             return MatrixZonotope(self.center + operand, self.generators)
+        elif isinstance(operand, MatrixZonotope):
+            assert self.shape == operand.shape, 'Incorrect dimensionality for operand'
+            return MatrixZonotope(self.center + operand.center, np.concatenate((self.generators, operand.generators), axis=0))
         else:
-            raise NotImplementedError
+            raise NotImplementedError(f'Add not implemented for {type(operand)}')
 
     __radd__ = __add__
 
