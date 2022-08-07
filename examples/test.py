@@ -1,5 +1,5 @@
 import numpy as np
-from rechability_analysis import compute_linear_system_matrix_zonotope
+from rechability_analysis import compute_linear_system_matrix_zonotope, LTI_reachability
 from zonotope import Zonotope
 from matrix_zonotope import MatrixZonotope
 from utils import concatenate_zonotope
@@ -28,8 +28,8 @@ total_samples = steps * trajectories
 
 # Initial set and input
 X0 = Zonotope(np.ones((dim_x, 1)), 0.1 * np.diag([1] * dim_x))
-U = Zonotope(np.ones((dim_u, 1)),  0.25 * np.diag([1] * dim_u))
-W = Zonotope(np.zeros((dim_x, 1)), 0.003 * np.ones((dim_x, 1)))
+U = Zonotope(10*np.ones((dim_u, 1)),  0.25 * np.diag([1] * dim_u))
+W = Zonotope(np.zeros((dim_x, 1)), 0.005 * np.ones((dim_x, 1)))
 
 Mw = concatenate_zonotope(W, total_samples - 1)
 u = U.sample(total_samples).reshape((trajectories, steps, dim_u))
@@ -54,3 +54,16 @@ print(f'Msigma contains [A,B]: {Msigma.contains(np.hstack((A,B)))}')
 
 test = Zonotope(np.zeros((2, 1)), np.diag([1] * 2))
 print(test.contains(np.array([1,1])))
+
+
+x_model = LTI_reachability(scipysig.StateSpace(A,B,C,D), X0, U, W, steps=6, order=5)
+x_data = LTI_reachability(Msigma, X0, U, W, steps=6, order=5)
+
+print(x_data[-1].shape)
+print(x_model[-1].shape)
+
+for i in range(len(x_data)):
+    print('---------------------\n')
+    print(f'Step {i}')
+    print(x_data[i].center)
+    print(x_model[i].center)

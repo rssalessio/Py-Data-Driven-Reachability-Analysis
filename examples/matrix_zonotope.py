@@ -61,12 +61,21 @@ class MatrixZonotope(object):
 
     __radd__ = __add__
 
-    def __mul__(self, operand: Union[int, float, np.ndarray]) -> Union[MatrixZonotope, Zonotope]:
+    def __mul__(self, operand: Union[int, float, np.ndarray, Zonotope]) -> Union[MatrixZonotope, Zonotope]:
         if isinstance(operand, float) or isinstance(operand, int):
             return MatrixZonotope(self.center * operand, self.generators * operand)
+        
+        elif isinstance(operand, Zonotope):
+            assert self.center.shape[1] == operand.Z.shape[0]
+            Znew = self.center @ operand.Z
+
+            for i in range(self.num_generators):
+                Zadd = self.generators[i] @ operand.Z
+                Znew = np.hstack((Znew, Zadd))
+            return Zonotope(Znew[:,:1], Znew[:, 1:])
 
         elif isinstance(operand, np.ndarray):
-            """ Operand """
+            # Left multiplication, operand * self
             if operand.shape[1] == self.center.shape[0]:
                 center = operand @ self.center
                 generators = np.zeros((self.num_generators, operand.shape[0], self.dim_p))
@@ -74,6 +83,7 @@ class MatrixZonotope(object):
                 for i in range(self.num_generators):
                     generators[i, :, :] = operand @ self.generators[i]
 
+            # Right multiplication, self * operand
             elif operand.shape[0] == self.center.shape[1]:
                 center = self.center @ operand
                 generators = np.zeros((self.num_generators, self.dim_n, operand.shape[1]))
