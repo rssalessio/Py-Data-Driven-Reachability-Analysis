@@ -68,25 +68,22 @@ class Zonotope(object):
         return Zonotope(deepcopy(self.center)[:, np.newaxis], deepcopy(self.generators))
 
     def __add__(self, operand: Zonotope) -> Zonotope:
-        ret = self.copy()
         if isinstance(operand, Zonotope):
             assert np.all(operand.dimension == self.dimension), \
                 f"Operand has not the same dimension, {self.dimension} != {operand.dimension}"
-            ret.Z[:, 0] += operand.center
-            ret.Z = np.hstack([self.Z, operand.generators])
+            return Zonotope(self.Z[:, 0] + operand.center, np.hstack([self.Z, operand.generators]))
         else:
             raise Exception(f"Addition not implemented for type {type(operand)}")
-        return ret
 
     def __mul__(self, operand: Union[int, float, np.ndarray]) -> Zonotope:
-        ret = self.copy()
         if isinstance(operand, float) or isinstance(operand, int):
-            ret.Z *= operand
+            Z = self.Z * operand
+            return Zonotope(Z[:,0], Z[:, 1:])
         elif isinstance(operand, np.ndarray):
             # Left multiplication, operand * self
             if operand.shape[1] == self.center.shape[0]:
-                ret.Z = operand @ self.Z
-
+                Z = operand @ self.Z
+                return Zonotope(Z[:,0], Z[:, 1:])
             # Right multiplication, self * operand
             # It's the same as the left multiplication
             elif operand.shape[0] == self.center.shape[1]:
@@ -97,7 +94,7 @@ class Zonotope(object):
 
         else:
             raise Exception(f"Multiplication not implemented for type {type(operand)}")
-        return ret
+
 
     __rmul__ = __mul__   # commutative operation
     __matmul__ = __mul__
