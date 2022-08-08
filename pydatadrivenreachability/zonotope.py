@@ -196,7 +196,12 @@ class Zonotope(object):
         
         return center, generators_unreduced, generators_reduced
 
-
+    def over_approximate(self) -> Zonotope:
+        """
+        Over approximates a zonotope by a cube
+        """
+        delta = np.sum(np.abs(self.generators), axis=1)[:, None]
+        return Zonotope(self.center, delta)
 
 
             

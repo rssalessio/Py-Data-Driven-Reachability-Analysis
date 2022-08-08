@@ -135,3 +135,10 @@ class CVXZonotope(object):
         B = np.zeros((W.generators.shape[0], self.generators.shape[1]))
         new_generators = cp.bmat([[self.generators, A], [B, W.generators]])
         return CVXZonotope(new_center, new_generators)
+
+    def over_approximate(self) -> CVXZonotope:
+        """
+        Over approximates a zonotope by a cube
+        """
+        delta = cp.sum(cp.abs(self.generators), axis=1)[:, None]
+        return CVXZonotope(self.center, delta)

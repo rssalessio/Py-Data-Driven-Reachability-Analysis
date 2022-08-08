@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Union, Tuple
+from typing import List, Union, Tuple
 import numpy as np
 from pydatadrivenreachability.zonotope import Zonotope
 from copy import deepcopy
@@ -83,11 +83,13 @@ class MatrixZonotope(object):
 
         elif isinstance(operand, CVXZonotope):
             assert self.center.shape[1] == operand.Z.shape[0]
-            Znew: cp.Expression = self.center @ operand.Z
+            Znew: List[cp.Expression] = [self.center @ operand.Z]
 
             for i in range(self.num_generators):
                 Zadd: cp.Expression = self.generators[i] @ operand.Z
-                Znew = cp.hstack((Znew, Zadd))
+                Znew.append(Zadd)
+
+            Znew = cp.hstack(Znew)
             return CVXZonotope(Znew[:,:1], Znew[:, 1:])
 
         elif isinstance(operand, np.ndarray):
@@ -134,13 +136,12 @@ class MatrixZonotope(object):
 
     @property
     def interval_matrix(self) -> IntervalMatrix:
-        Z = self.copy()
 
-        delta = np.abs(Z.generators[0])
+        delta = np.abs(self.generators[0])
         for i in range(1, self.num_generators):
-            delta += np.abs(Z.generators[i])
+            delta += np.abs(self.generators[i])
 
-        return IntervalMatrix(Z.center, delta)
+        return IntervalMatrix(self.center, delta)
 
     def contains(self, X: np.ndarray) -> bool:
         """
@@ -148,3 +149,11 @@ class MatrixZonotope(object):
         """
         return self.interval_matrix.contains(X)
 
+    def over_approximate(self) -> MatrixZonotope:
+        """
+        Over approximates a Matrix zonotope by a cube
+        """
+        delta = np.abs(self.generators[0])
+        for i in range(1, self.num_generators):
+            delta += np.abs(self.generators[i])
+        return MatrixZonotope(self.center, delta[None,:])
