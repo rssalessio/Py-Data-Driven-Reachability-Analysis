@@ -121,9 +121,8 @@ class Zonotope(object):
     @property
     def interval(self) -> Interval:
         """ Return the interval representation of the zonotope """
-        res = self.copy()
-        center = res.center
-        delta = np.abs(res.generators).sum(axis=1)
+        center = self.center
+        delta = np.abs(self.generators).sum(axis=1)
         return Interval(center - delta, center + delta)
 
     def contains(self, X: np.ndarray) -> bool:

@@ -118,9 +118,8 @@ class CVXZonotope(object):
     @property
     def interval(self) -> Interval:
         """ Return the interval representation of the zonotope """
-        res = self.copy()
-        center = res.center
-        delta = cp.sum(cp.abs(res.generators), axis=1)
+        center = self.center
+        delta = cp.sum(cp.abs(self.generators), axis=1)
         return Interval(center - delta, center + delta)
 
     def cartesian_product(self, W: Union[Zonotope, CVXZonotope]) -> CVXZonotope:
