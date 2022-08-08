@@ -52,8 +52,8 @@ for j in range(trajectories):
         Y[j, i, :] = C @ X[j, i, :] + V.sample()
 
 
-Ym = np.reshape(X[:,:-1,:], ((steps - 1) * trajectories, dim_y))
-Yp = np.reshape(X[:, 1:,:], ((steps - 1) * trajectories, dim_y))
+Ym = np.reshape(Y[:,:-1,:], ((steps - 1) * trajectories, dim_y))
+Yp = np.reshape(Y[:, 1:,:], ((steps - 1) * trajectories, dim_y))
 Um = np.reshape(u[:, :-1,:], ((steps - 1) * trajectories, dim_u))
 
 Msigma = compute_IO_LTI_matrix_zonotope(Ym, Yp, Um, Mw, Mv, Mav)
