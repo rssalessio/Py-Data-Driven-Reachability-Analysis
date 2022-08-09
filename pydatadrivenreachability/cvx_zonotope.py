@@ -109,7 +109,7 @@ class CVXZonotope(object):
         elif isinstance(operand, IntervalMatrix):
             T = operand.center
             S = operand.radius
-            Zabssum = cp.abs(self.Z).sum(1)
+            Zabssum = cp.sum(cp.abs(self.Z), axis=1)
             Z = cp.hstack([T @ self.Z, cp.diag(S @ Zabssum)])
             return CVXZonotope(Z[:,0], Z[:, 1:])
 
