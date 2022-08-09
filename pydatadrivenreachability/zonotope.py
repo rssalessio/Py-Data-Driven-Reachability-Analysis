@@ -74,7 +74,7 @@ class Zonotope(object):
         if isinstance(operand, Zonotope):
             assert np.all(operand.dimension == self.dimension), \
                 f"Operand has not the same dimension, {self.dimension} != {operand.dimension}"
-            return Zonotope(self.Z[:, 0] + operand.center, np.hstack([self.Z, operand.generators]))
+            return Zonotope(self.Z[:, 0] + operand.center, np.hstack([self.Z[:, 1:], operand.generators]))
         else:
             raise Exception(f"Addition not implemented for type {type(operand)}")
 

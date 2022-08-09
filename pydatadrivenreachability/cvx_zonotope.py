@@ -85,7 +85,7 @@ class CVXZonotope(object):
         if isinstance(operand, Zonotope) or isinstance(operand, CVXZonotope):
             assert np.all(operand.dimension == self.dimension), \
                 f"Operand has not the same dimension, {self.dimension} != {operand.dimension}"
-            return CVXZonotope(self.Z[:, 0] + operand.center, cp.hstack([self.Z, operand.generators]))
+            return CVXZonotope(self.Z[:, 0] + operand.center, cp.hstack([self.Z[:,1:], operand.generators]))
         else:
             raise Exception(f"Addition not implemented for type {type(operand)}")
 
