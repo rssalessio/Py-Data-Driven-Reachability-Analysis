@@ -9,6 +9,7 @@ class IntervalMatrix(object):
     inf: np.ndarray
     sup: np.ndarray
     _interval: np.ndarray
+    matrix_center = np.ndarray
     setting: str = 'sharpivmult'
 
     def __init__(self, matrix_center: np.ndarray, matrix_delta: np.ndarray, setting: str = None):
@@ -19,12 +20,21 @@ class IntervalMatrix(object):
         self.sup = matrix_center + _matrix_delta
 
         self._interval = Interval(self.inf, self.sup)
+        self.matrix_center = matrix_center
         
         if isinstance(setting, str):
             self.setting = setting
 
     def __str__(self):
         return f'Interval matrix: sup {self.sup}\ninf {self.inf}'
+
+    @property
+    def center(self) -> np.ndarray:
+        return self.matrix_center
+
+    @property
+    def radius(self) -> np.ndarray:
+        return self.interval.radius
 
     @property
     def interval(self) -> Interval:

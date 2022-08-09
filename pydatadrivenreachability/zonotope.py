@@ -5,6 +5,7 @@ from copy import deepcopy
 from scipy.linalg import block_diag
 
 from pydatadrivenreachability.interval import Interval
+from pydatadrivenreachability.interval_matrix import IntervalMatrix
 
 class Zonotope(object):
     """
@@ -77,10 +78,11 @@ class Zonotope(object):
         else:
             raise Exception(f"Addition not implemented for type {type(operand)}")
 
-    def __mul__(self, operand: Union[int, float, np.ndarray]) -> Zonotope:
+    def __mul__(self, operand: Union[int, float, np.ndarray, IntervalMatrix]) -> Zonotope:
         if isinstance(operand, float) or isinstance(operand, int):
             Z = self.Z * operand
             return Zonotope(Z[:,0], Z[:, 1:])
+
         elif isinstance(operand, np.ndarray):
             # Left multiplication, operand * self
             if operand.shape[1] == self.center.shape[0]:
@@ -93,6 +95,16 @@ class Zonotope(object):
 
             else:
                 raise Exception('Incorrect dimension')
+
+        elif isinstance(operand, IntervalMatrix):
+            import pdb
+            pdb.set_trace()
+
+            T = operand.center
+            S = operand.radius
+            Zabssum = np.abs(self.Z).sum(1)
+            Z = np.hstack([T @ self.Z, np.diag(S @ Zabssum)])
+            return Zonotope(Z[:,0], Z[:, 1:])
 
         else:
             raise Exception(f"Multiplication not implemented for type {type(operand)}")

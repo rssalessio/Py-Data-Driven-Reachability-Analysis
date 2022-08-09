@@ -4,6 +4,7 @@ import numpy as np
 from copy import deepcopy
 from scipy.linalg import block_diag
 import cvxpy as cp
+from pydatadrivenreachability.interval_matrix import IntervalMatrix
 from pydatadrivenreachability.zonotope import Zonotope
 from pydatadrivenreachability.interval import Interval
 
@@ -88,7 +89,7 @@ class CVXZonotope(object):
         else:
             raise Exception(f"Addition not implemented for type {type(operand)}")
 
-    def __mul__(self, operand: Union[int, float, np.ndarray]) -> CVXZonotope:
+    def __mul__(self, operand: Union[int, float, np.ndarray, IntervalMatrix]) -> CVXZonotope:
         if isinstance(operand, float) or isinstance(operand, int):
             Z = self.Z * operand
             return CVXZonotope(Z[:,0], Z[:, 1:])
@@ -104,6 +105,13 @@ class CVXZonotope(object):
 
             else:
                 raise Exception('Incorrect dimension')
+
+        elif isinstance(operand, IntervalMatrix):
+            T = operand.center
+            S = operand.radius
+            Zabssum = cp.abs(self.Z).sum(1)
+            Z = cp.hstack([T @ self.Z, cp.diag(S @ Zabssum)])
+            return CVXZonotope(Z[:,0], Z[:, 1:])
 
         else:
             raise Exception(f"Multiplication not implemented for type {type(operand)}")

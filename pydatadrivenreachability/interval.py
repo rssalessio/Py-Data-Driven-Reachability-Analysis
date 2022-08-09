@@ -21,6 +21,11 @@ class Interval(object):
             if np.any(self.left_limit >  self.right_limit):
                 raise ValueError('Left limit needs cannot be greater than right limit')
 
+    @property
+    def radius(self) -> np.ndarray:
+        """ Returns interval radius """
+        return 0.5 * (self.right_limit - self.left_limit)
+
     def __str__(self):
         return f'Interval: {self.left_limit}\n{self.right_limit}'
 
