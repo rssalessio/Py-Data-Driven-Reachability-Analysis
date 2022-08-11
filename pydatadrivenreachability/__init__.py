@@ -7,7 +7,7 @@ from .reachability_analysis import compute_LTI_matrix_zonotope, compute_IO_LTI_m
 from .cvx_zonotope import CVXZonotope
 
 __author__ = 'Alessio Russo - alessior@kth.se'
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 __url__ = 'https://github.com/rssalessio/Py-Data-Driven-Reachability-Analysis'
 __info__ = {
     'version': __version__,

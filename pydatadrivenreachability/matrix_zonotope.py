@@ -1,4 +1,5 @@
 from __future__ import annotations
+from email import generator
 from typing import List, Union, Tuple
 import numpy as np
 from pydatadrivenreachability.zonotope import Zonotope
@@ -51,6 +52,13 @@ class MatrixZonotope(object):
     def generators(self) -> np.ndarray:
         """ Returns the generators of the matrix zonotope, of dimension (g,n,p) where g is the number of generators """
         return self._generators
+    
+    @property
+    def order(self) -> float:
+        """ Returns the order of the matrix zonotope.
+            Equivalent to converting the matrix zonotope to a zonotope and then computing the order of this zonotope
+        """
+        return self.num_generators / np.prod(self.shape)
 
     def copy(self) -> MatrixZonotope:
         return MatrixZonotope(deepcopy(self.center), deepcopy(self.generators))
@@ -157,3 +165,30 @@ class MatrixZonotope(object):
         for i in range(1, self.num_generators):
             delta += np.abs(self.generators[i])
         return MatrixZonotope(self.center, delta[None,:])
+
+    @property
+    def zonotope(self) -> Zonotope:
+        """ Convert the matrix zonotope to a zonotope """
+        center = self.center.flatten()
+        generators = [self.generators[i].flatten()[:, None] for i in range(self.num_generators)]
+        return Zonotope(center, np.hstack(generators))
+    
+    def reduce(self, order: int) -> MatrixZonotope:
+        """
+        Reduces the matrix zonotope using Zonotopes reduction methods
+
+        :param order: desired order
+        :return: a Matrix zonotope
+        """
+        # Convert to zonotope and reduce
+        reduced_zonotope = self.zonotope.reduce(order)
+
+        # Convert zonotope back to matrix zonotope
+        center = reduced_zonotope.center.reshape(self.center.shape)
+        generators = np.zeros((reduced_zonotope.num_generators, center.shape[0], center.shape[1]))
+
+        for i in range(reduced_zonotope.num_generators):
+            generators[i] = reduced_zonotope.generators[:,i].reshape(center.shape)
+
+        # Return new matrix zonotope
+        return MatrixZonotope(center, generators)

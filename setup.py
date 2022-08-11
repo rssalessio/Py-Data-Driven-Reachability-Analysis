@@ -4,7 +4,7 @@ from os import path
 
 setup(name = 'pydatadrivenreachability',
     packages=find_packages(),
-    version = '0.0.2',
+    version = '0.0.3',
     description = 'Python library for Data-Driven Reachability Analysis',
     url = 'https://github.com/rssalessio/Py-Data-Driven-Reachability-Analysis',
     author = 'Alessio Russo',

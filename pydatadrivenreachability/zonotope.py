@@ -60,6 +60,11 @@ class Zonotope(object):
         return self.generators.shape[0]
 
     @property
+    def order(self) -> float:
+        """ Returns the order of the zonotope """
+        return self.num_generators / self.dimension
+
+    @property
     def shape(self) -> Tuple[int,int]:
         """ Returns d x n, where d is the dimensionality and n is the number of generators """
         return [self.dimension, self.num_generators]
@@ -158,10 +163,11 @@ class Zonotope(object):
 
     def reduce(self, order: int) -> Zonotope:
         """
-        Applies the Girard reduction to the zonotope
+        Applies the Box reduction to the zonotope
 
         See also A. Girard. "Reachability of uncertain linear systems
-        using zonotopes". 2005
+        using zonotopes". 2005 or
+        https://mediatum.ub.tum.de/doc/1379661/473275.pdf
 
         :param order: desired order of the zonotope
         :return: a matrix
@@ -192,19 +198,19 @@ class Zonotope(object):
         generators_unreduced = generators
         generators_reduced = None
 
-        if np.any(generators):
+        # Reduce only if the order of the zonotope is greater than the desired order
+        if self.order > order and np.any(generators):
             # Delete generators that are 0 (non zero filter)
             generators: np.ndarray = generators[:, np.any(generators, axis=0)]
 
             dim, num_generators = generators.shape
 
-            if num_generators > dim * order:
-                h = np.linalg.norm(generators, ord=1, axis=0) - np.linalg.norm(generators, ord=np.infty, axis=0)
-                n_unreduced = int(np.floor(dim * (order - 1)))
-                n_reduced = num_generators - n_unreduced
-                idxs = np.argpartition(h, n_reduced - 1)
-                generators_reduced = generators[:, idxs[: n_reduced]]
-                generators_unreduced = generators[:, idxs[n_reduced:]]
+            h = np.linalg.norm(generators, ord=1, axis=0) - np.linalg.norm(generators, ord=np.infty, axis=0)
+            n_unreduced = int(np.floor(dim * (order - 1)))
+            n_reduced = num_generators - n_unreduced
+            idxs = np.argpartition(h, n_reduced - 1)
+            generators_reduced = generators[:, idxs[: n_reduced]]
+            generators_unreduced = generators[:, idxs[n_reduced:]]
         
         return center, generators_unreduced, generators_reduced
 
