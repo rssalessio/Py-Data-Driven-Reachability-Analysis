@@ -1,4 +1,5 @@
 from __future__ import annotations
+from cmath import isclose
 from typing import Union, Tuple
 import numpy as np
 from copy import deepcopy
@@ -236,6 +237,19 @@ class Zonotope(object):
 
         res = problem.solve()
         return res, beta.value
+
+    def add_generator(self, w: np.ndarray):
+        if not self.contains(w):
+            delta = (w - self.center)
+            Ginv = np.linalg.inv(self.generators.T @ self.generators)
+            GinvG = Ginv @ self.generators.T
+            beta =  GinvG @ delta
+            xnull = (np.eye(self.dimension) - self.generators @ GinvG) @ delta
+            self.Z[:, 1:] = self.Z[:, 1:] *  np.max(np.abs(beta), 1)
+            if np.any(not np.isclose(xnull, 0)):
+                self.Z =  np.hstack([self.Z, xnull.flatten()[:, None]])
+        
+            
 
 
             
