@@ -192,3 +192,8 @@ class MatrixZonotope(object):
 
         # Return new matrix zonotope
         return MatrixZonotope(center, generators)
+
+    @property
+    def max_norm(self) -> Tuple[float, np.ndarray]:
+        """ Returns the maximum infinity norm on the set """
+        return self.zonotope.max_norm

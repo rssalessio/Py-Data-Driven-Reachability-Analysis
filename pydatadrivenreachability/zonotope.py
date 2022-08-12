@@ -3,6 +3,7 @@ from typing import Union, Tuple
 import numpy as np
 from copy import deepcopy
 from scipy.linalg import block_diag
+import cvxpy as cp
 
 from pydatadrivenreachability.interval import Interval
 from pydatadrivenreachability.interval_matrix import IntervalMatrix
@@ -220,6 +221,21 @@ class Zonotope(object):
         """
         delta = np.sum(np.abs(self.generators), axis=1)[:, None]
         return Zonotope(self.center, delta)
+
+    @property
+    def max_norm(self) -> Tuple[float, np.ndarray]:
+        """ Returns the maximum infinity norm on the set """
+        beta = cp.Variable((self.num_generators))
+        y = cp.Variable(nonneg=True)
+        constraints = [cp.norm(beta, p=np.infty) <= 1]
+
+        for i in range(self.dimension):
+            constraints.append(y<= self.center[i] + self.generators[i,:] @ beta)    
+
+        problem = cp.Problem(cp.Maximize(y), constraints=constraints)
+
+        res = problem.solve()
+        return res, beta.value
 
 
             

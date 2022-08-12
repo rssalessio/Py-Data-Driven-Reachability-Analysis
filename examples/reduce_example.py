@@ -56,3 +56,9 @@ Msigma = compute_LTI_matrix_zonotope(Xm, Xp, Um, Mw,Ms)
 
 print(Msigma.order)
 print(Msigma.reduce(10).order)
+
+print(Wtrue.max_norm)
+print(Msigma.max_norm)
+print(Msigma.reduce(10).max_norm)
+print(Msigma.reduce(10).max_norm)
+print(Msigma.reduce(10).max_norm)
