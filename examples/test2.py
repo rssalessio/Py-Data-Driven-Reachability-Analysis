@@ -45,26 +45,8 @@ Xm = np.reshape(X[:,:-1,:], ((steps - 1) * trajectories, dim_x))
 Xp = np.reshape(X[:, 1:,:], ((steps - 1) * trajectories, dim_x))
 Um = np.reshape(u[:, :-1,:], ((steps - 1) * trajectories, dim_u))
 
-Msigma: MatrixZonotope = compute_LTI_matrix_zonotope(Xm, Xp, Um, Mw)
+Msigma = compute_LTI_matrix_zonotope(Xm, Xp, Um, Mw)
 
-print(f'Msigma contains [A,B]: {Msigma.contains(np.hstack((A,B)))}')
 
-import pdb
-pdb.set_trace()
-print(Msigma.over_approximate().compute_vertices())
+import cvxpy as cp
 
-test = Zonotope(np.zeros((2, 1)), np.diag([1] * 2))
-print(test.contains(np.array([1,1])))
-print(Msigma.center)
-
-x_data = LTI_reachability(Msigma, X0, U, W, steps=5, order=5)
-x_model = LTI_reachability(scipysig.StateSpace(A,B,C,D), X0, U, W, steps=5, order=5)
-
-print(x_data[-1].shape)
-print(x_model[-1].shape)
-
-for i in range(len(x_data)):
-    print('---------------------\n')
-    print(f'Step {i}')
-    print(x_data[i].center)
-    print(x_model[i].center)

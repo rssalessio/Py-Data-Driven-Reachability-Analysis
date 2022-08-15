@@ -5,6 +5,8 @@ import numpy as np
 from copy import deepcopy
 from scipy.linalg import block_diag
 import cvxpy as cp
+from scipy.special import comb
+from scipy.spatial import ConvexHull
 
 from pydatadrivenreachability.interval import Interval
 from pydatadrivenreachability.interval_matrix import IntervalMatrix
@@ -248,6 +250,38 @@ class Zonotope(object):
             self.Z[:, 1:] = self.Z[:, 1:] *  np.max(np.abs(beta), 1)
             if np.any(not np.isclose(xnull, 0)):
                 self.Z =  np.hstack([self.Z, xnull.flatten()[:, None]])
+
+    @property
+    def max_num_vertices(self):
+        res = 0
+        for i in range(self.dimension):
+            res += comb(self.num_generators - 1, i)
+        return 2 * res
+
+    def compute_vertices(self) -> np.ndarray:
+        """
+        Uses convex hull algorithm
+        :return: an array of Vxd dimensions, where V is the number of vertices
+                 and d is the dimensionality of the zonotope.
+        """
+        import pdb
+        pdb.set_trace()
+        V = self.center.copy()
+
+
+        for iVertex in range(self.num_generators):
+            translation = self.generators[:, iVertex]
+            V = np.vstack([V +  translation, V-translation])
+            if iVertex > self.dimension - 1:
+                try:
+                    V = V[ConvexHull(V).vertices]
+                except Exception as e:
+                    raise('Could not compute the convex hul')
+                
+
+        return V
+
+
         
             
 

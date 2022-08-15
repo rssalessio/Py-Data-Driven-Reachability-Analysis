@@ -197,3 +197,17 @@ class MatrixZonotope(object):
     def max_norm(self) -> Tuple[float, np.ndarray]:
         """ Returns the maximum infinity norm on the set """
         return self.zonotope.max_norm
+
+    def compute_vertices(self):
+        """
+        Uses convex hull algorithm
+        """
+        vertices= self.zonotope.compute_vertices()
+
+        V = np.zeros((vertices.shape[0], self.dim_n, self.dim_p))
+        # Convert zonotope back to matrix zonotope
+        for i in range(vertices.shape[0]):
+            V[i] = vertices[i].reshape(self.center.shape)
+
+        return V
+

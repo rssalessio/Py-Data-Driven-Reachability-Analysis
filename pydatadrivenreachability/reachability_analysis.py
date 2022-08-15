@@ -5,7 +5,7 @@ from typing import Optional, List
 from functools import singledispatch
 from scipy.signal import StateSpace
 
-def compute_LTI_matrix_zonotope(X0: np.ndarray, X1: np.ndarray, U0: np.ndarray, Mw: MatrixZonotope, Ms: MatrixZonotope) -> MatrixZonotope:
+def compute_LTI_matrix_zonotope(X0: np.ndarray, X1: np.ndarray, U0: np.ndarray, Mw: MatrixZonotope, Ms: MatrixZonotope = None) -> MatrixZonotope:
     """
     Computes the matrix zonotope of a linear system given a set of collected trajectories
 
@@ -21,7 +21,9 @@ def compute_LTI_matrix_zonotope(X0: np.ndarray, X1: np.ndarray, U0: np.ndarray, 
     assert X0.shape[0] == X1.shape[0] == U0.shape[0], 'Data has not the same number of samples'
     assert X1.shape[1] == X0.shape[1], 'X data has not the same dimensionality'
 
-    M = Mw + Ms
+    M = Mw
+    if Ms is not None:
+        M = M + Ms
     Msigma = MatrixZonotope(X1.T - M.center, M.generators)
     return Msigma * np.linalg.pinv(np.vstack((X0.T, U0.T)))
 
