@@ -264,10 +264,7 @@ class Zonotope(object):
         :return: an array of Vxd dimensions, where V is the number of vertices
                  and d is the dimensionality of the zonotope.
         """
-        import pdb
-        pdb.set_trace()
         V = self.center.copy()
-
 
         for iVertex in range(self.num_generators):
             translation = self.generators[:, iVertex]
