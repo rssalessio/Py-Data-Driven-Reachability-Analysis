@@ -91,3 +91,34 @@ print(f'Msigma contains [A,B]: {Msigma.contains(np.hstack((A.value,B)))}')
 # print("x =", x.value)
 # print("y =", y.value)
 # print("cost value =", result[0])
+
+
+
+A1 = cp.Variable((dim_x, dim_x))
+A2 = cp.Variable((dim_x, dim_x))
+
+beta_A0 = cp.Variable(Msigma.num_generators)
+beta_A1 = cp.Variable(Msigma.num_generators)
+
+objective = cp.lambda_max(A1-A2)
+constraints = [
+    beta_A0 >= -1, beta_A0 <= 1,
+    beta_A1 >= -1, beta_A1 <= 1 
+]
+
+Agen0 = Msigma.center[:, :dim_x]
+Agen1 = Msigma.center[:, :dim_x]
+for i in range(Msigma.num_generators):
+    Agen0 = Agen0 + Msigma.generators[i][:, :dim_x] * beta_A0[i]
+    Agen1 = Agen1 + Msigma.generators[i][:, :dim_x] * beta_A1[i]
+
+constraints.append(A0 == Agen0)
+constraints.append(A1 == Agen1)
+
+
+problem = cp.Problem(cp.Maximize(objective), constraints)
+res = problem.solve(method='dccp', solver=cp.ECOS, verbose=True)
+print(f'Result: {res}')
+print("problem is DCCP:", dccp.is_dccp(problem)) 
+print(A1.value)
+print(A2.value)
