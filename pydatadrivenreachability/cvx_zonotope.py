@@ -80,7 +80,7 @@ class CVXZonotope(object):
         return CVXZonotope(deepcopy(self.center)[:, np.newaxis], deepcopy(self.generators))
 
     def __add__(self, operand: Union[float, int, np.ndarray, Zonotope, CVXZonotope]) -> CVXZonotope:
-        if isinstance(operand, float) or isinstance(operand, int) or isinstance(operand, np.ndarray):
+        if isinstance(operand, float) or isinstance(operand, int) or isinstance(operand, np.ndarray) or isinstance(operand, cp.Expression):
             return CVXZonotope(self.Z[:, 0] + operand, self.Z[:, 1:])
         if isinstance(operand, Zonotope) or isinstance(operand, CVXZonotope):
             assert np.all(operand.dimension == self.dimension), \
