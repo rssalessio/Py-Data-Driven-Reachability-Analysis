@@ -146,12 +146,12 @@ class Zonotope(object):
         delta = np.abs(self.generators).sum(axis=1)
         return Interval(center - delta, center + delta)
 
-    def contains(self, X: np.ndarray) -> bool:
+    def contains(self, X: np.ndarray, tolerance: float = 1e-9) -> bool:
         """
         Return true if the zonotope contains X
         """
         assert isinstance(X, np.ndarray), 'Operand is not an array'
-        return self.interval.contains(X)
+        return self.interval.contains(X, tolerance)
 
     def cartesian_product(self, W: Zonotope) -> Zonotope:
         """
@@ -278,6 +278,16 @@ class Zonotope(object):
 
         return V
 
+    def projection(self, x: np.ndarray) -> Tuple[float, np.ndarray, np.ndarray]:
+        beta = cp.Variable((self.num_generators))
+        constraints = [beta <= 1, beta >= -1]
+
+        obj = cp.norm(x - self.center - self.generators @ beta)
+
+        problem = cp.Problem(cp.Minimize(obj), constraints=constraints)
+
+        res = problem.solve()
+        return res, self.center + self.generators @ beta.value, beta.value
 
         
             

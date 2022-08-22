@@ -151,11 +151,11 @@ class MatrixZonotope(object):
 
         return IntervalMatrix(self.center, delta)
 
-    def contains(self, X: np.ndarray) -> bool:
+    def contains(self, X: np.ndarray, tolerance: float = 1e-9) -> bool:
         """
         Returns true if the matrix zonotope contains X
         """
-        return self.interval_matrix.contains(X)
+        return self.interval_matrix.contains(X, tolerance)
 
     def over_approximate(self) -> MatrixZonotope:
         """
@@ -210,4 +210,10 @@ class MatrixZonotope(object):
             V[i] = vertices[i].reshape(self.center.shape)
 
         return V
+
+    def choose_columns(self, idxs: np.ndarray) -> MatrixZonotope:
+        return MatrixZonotope(self.center[:, idxs], self.generators[:, :, idxs])
+
+    def choose_rows(self, idxs: np.ndarray) -> MatrixZonotope:
+        return MatrixZonotope(self.center[idxs, :], self.generators[:, idxs, :])
 

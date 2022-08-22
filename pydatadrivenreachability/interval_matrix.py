@@ -41,8 +41,8 @@ class IntervalMatrix(object):
         """ Returns the interval representation """
         return self._interval
 
-    def contains(self, X: np.ndarray) -> bool:
+    def contains(self, X: np.ndarray, tolerance: float = 1e-9) -> bool:
         """
         Returns true if the interval matrix contains X
         """
-        return self.interval.contains(X)
+        return self.interval.contains(X, tolerance)

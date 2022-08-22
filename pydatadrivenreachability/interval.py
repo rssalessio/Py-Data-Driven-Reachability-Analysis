@@ -30,7 +30,7 @@ class Interval(object):
         return f'Interval: {self.left_limit}\n{self.right_limit}'
 
 
-    def contains(self, X: np.ndarray) -> bool:
+    def contains(self, X: np.ndarray, tolerance: float = 1e-9) -> bool:
         """
         Returns true if interval contains X
         """
@@ -38,7 +38,7 @@ class Interval(object):
         assert X.shape == self.left_limit.shape, "X has not the correct shape"
 
         if isinstance(self.left_limit, np.ndarray) and isinstance(self.right_limit, np.ndarray):
-            return np.all(X >= self.left_limit) and np.all(X <= self.right_limit)
+            return np.all(X + tolerance >= self.left_limit) and np.all(X - tolerance <= self.right_limit)
         else:
             raise NotImplementedError('Contains not implemented for cvxpy expressions')
 
