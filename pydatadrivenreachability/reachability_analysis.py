@@ -1,6 +1,6 @@
 import numpy as np
-from pydatadrivenreachability.zonotope import Zonotope
-from pydatadrivenreachability.matrix_zonotope import MatrixZonotope
+from pyzonotope.zonotope import Zonotope
+from pyzonotope.matrix_zonotope import MatrixZonotope
 from typing import Optional, List
 from functools import singledispatch
 from scipy.signal import StateSpace

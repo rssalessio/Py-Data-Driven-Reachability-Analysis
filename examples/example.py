@@ -1,6 +1,9 @@
 import numpy as np
-from pydatadrivenreachability import Zonotope, MatrixZonotope, concatenate_zonotope, compute_LTI_matrix_zonotope, LTI_reachability
+from pyzonotope import Zonotope, MatrixZonotope, concatenate_zonotope
+from pydatadrivenreachability import compute_LTI_matrix_zonotope, LTI_reachability
 import scipy.signal as scipysig
+
+
 np.set_printoptions(formatter={'float': lambda x: "{0:0.3f}".format(x)})
 A = np.array(
     [[-1, -4, 0, 0, 0],
@@ -49,19 +52,10 @@ Msigma: MatrixZonotope = compute_LTI_matrix_zonotope(Xm, Xp, Um, Mw)
 
 print(f'Msigma contains [A,B]: {Msigma.contains(np.hstack((A,B)))}')
 
-import pdb
-pdb.set_trace()
-print(Msigma.over_approximate().compute_vertices())
-
-test = Zonotope(np.zeros((2, 1)), np.diag([1] * 2))
-print(test.contains(np.array([1,1])))
-print(Msigma.center)
 
 x_data = LTI_reachability(Msigma, X0, U, W, steps=5, order=5)
 x_model = LTI_reachability(scipysig.StateSpace(A,B,C,D), X0, U, W, steps=5, order=5)
 
-print(x_data[-1].shape)
-print(x_model[-1].shape)
 
 for i in range(len(x_data)):
     print('---------------------\n')

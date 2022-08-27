@@ -1,8 +1,10 @@
 import numpy as np
 import numpy as np
-from pydatadrivenreachability import Zonotope, MatrixZonotope, concatenate_zonotope, compute_IO_LTI_matrix_zonotope, LTI_IO_reachability
+from pyzonotope import Zonotope, MatrixZonotope, concatenate_zonotope
+from pydatadrivenreachability import  compute_IO_LTI_matrix_zonotope, LTI_IO_reachability
 import scipy.signal as scipysig
-import scipy.signal as scipysig
+
+
 np.set_printoptions(formatter={'float': lambda x: "{0:0.3f}".format(x)})
 A = np.array(
     [[-1, -4, 0, 0, 0],
@@ -64,9 +66,6 @@ print(f'Msigma contains [A,B]: {Msigma.contains(np.hstack((A,B)))}')
 
 y_data = LTI_IO_reachability(Msigma, X0, U, W, V, AV, steps=5, order=5)
 y_model = LTI_IO_reachability(scipysig.StateSpace(A,B,C,D), X0, U, W, V, AV, steps=5, order=5)
-
-print(y_data[-1].shape)
-print(y_model[-1].shape)
 
 for i in range(len(y_data)):
     print('---------------------\n')
