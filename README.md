@@ -6,6 +6,6 @@ Author: Alessio Russo (alessior@kth.se)
 
 ## How to use
 
-Download the repo, and install using `pip`.
+Download the repo, and install using `pip`. See examples in the `examples` folder.
 
 Requirements: `numpy`, `scipy`, `cvxpy` and `pyzonotope` (install `pyzonotope` from here https://github.com/rssalessio/pyzonotope)
