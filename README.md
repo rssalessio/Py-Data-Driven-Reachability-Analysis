@@ -8,4 +8,4 @@ Author: Alessio Russo (alessior@kth.se)
 
 Download the repo, and install using `pip`.
 
-Requirements: `numpy`, `scipy`, `cvxpy` and `pyzonotope` (install `pyzonotope` from here [https://github.com/rssalessio/pyzonotope])
+Requirements: `numpy`, `scipy`, `cvxpy` and `pyzonotope` (install `pyzonotope` from here https://github.com/rssalessio/pyzonotope)
