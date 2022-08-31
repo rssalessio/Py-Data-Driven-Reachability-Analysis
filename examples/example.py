@@ -2,7 +2,7 @@ import numpy as np
 from pyzonotope import Zonotope, MatrixZonotope, concatenate_zonotope
 from pydatadrivenreachability import compute_LTI_matrix_zonotope, LTI_reachability
 import scipy.signal as scipysig
-
+from scipy.linalg import null_space, orth
 
 np.set_printoptions(formatter={'float': lambda x: "{0:0.3f}".format(x)})
 A = np.array(
@@ -28,7 +28,7 @@ total_samples = steps * trajectories
 # Initial set and input
 X0 = Zonotope([1] * dim_x, 0.1 * np.diag([1] * dim_x))
 U = Zonotope([10] * dim_u,  0.25 * np.diag([1] * dim_u))
-W = Zonotope([0] * dim_x, 0.005 * np.ones((dim_x, 1)))
+W = Zonotope([0] * dim_x, 0.005 * np.ones((dim_x, 3)))
 
 
 Mw = concatenate_zonotope(W, total_samples - 1)
@@ -48,6 +48,23 @@ Xm = np.reshape(X[:,:-1,:], ((steps - 1) * trajectories, dim_x))
 Xp = np.reshape(X[:, 1:,:], ((steps - 1) * trajectories, dim_x))
 Um = np.reshape(u[:, :-1,:], ((steps - 1) * trajectories, dim_u))
 
+
+import pdb
+pdb.set_trace()
+kernel_basis = null_space(np.vstack((Xm.T, Um.T)))
+Bw = (Xp.T - Mw.center) @ kernel_basis
+Bw_vec = Bw.flatten()
+Aw = []
+Aw_vec = []
+for i in range(Mw.num_generators):
+    Aw.append(Mw.generators[i] @ kernel_basis)
+    Aw_vec.append(Aw[-1].flatten())
+
+Aw_vec = np.array(Aw_vec)
+beta0 = Bw_vec @ np.linalg.pinv(Aw_vec)
+Aw = np.hstack(Aw)
+import pdb
+pdb.set_trace()
 Msigma: MatrixZonotope = compute_LTI_matrix_zonotope(Xm, Xp, Um, Mw)
 
 print(f'Msigma contains [A,B]: {Msigma.contains(np.hstack((A,B)))}')
